@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head('Categories-Slipkart Admin', 'none')"></head>
+<body>
+	<div class= "container-fluid">
+	<div th:replace="navigation :: menu"> </div>
+	
+	<div>
+	<h2>Manage Categories</h2>
+	<a th:href="@{/categories/new}" class="fas fa-folder-plus fa-2x icon-dark mr-2"></a>
+	<a th:href="@{/categories/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
+	</div>
+		
+		<div th:if="${message != null}"class="alert alert-success text-center">
+			[[${message}]]
+			</div>
+			
+<div th:replace="fragments :: search_form('/categories/page/1')"></div>
+	
+	<div class="full-details">
+	<table class="table table-bordered table-striped table-hover table-responsive-xl"> 
+	<thead class= "thead-dark">
+	  <tr> 
+	       <th>ID</th>
+	       <th>Category Image</th>
+	       <th>
+	            <a class="text-white" th:href="@{'/categories/page/' + ${pageNum} + 
+	            '?sortDir=' + ${reverseSortDir}+ ${keyword != null ? '&keyword=' + keyword : ''}}">Category Name</a>
+	        <span th:class="${reverseSortDir == 'desc' ? 'fa-solid fa-sort-up' : 'fa-solid  fa-sort-down'}">
+	       </th>
+	       <th class="hideable-column">Alias</th>
+	       <th>Enabled</th>
+	       <th></th>
+	       </tr>
+	       </thead>
+	       
+	       <tbody>
+	       <tr th:each="cat : ${listCategories}">
+	       <td>[[${cat.id}]]</td>
+	       <td>
+	       <img th:src="@{${cat.imagePath}}" style ="width: 100px" class="img-fluid" />
+	  
+	       </td>
+	         <td>[[${cat.name}]]</td>
+	           <td class="hideable-column">[[${cat.alias}]]</td>
+	             <td>
+	             
+	             <div th:replace="fragments :: status(${cat.enabled}, 'category', '/categories/' + ${cat.id})" />
+	             </td>
+	             
+	               <td>
+	             <div th:replace ="fragments :: category_actions"></div>
+	               <td>
+					<!--	<a class="fa-solid fa-pen-to-square fa-2x icon-green"
+							th:href="@{'/categories/edit/' + ${cat.id}}" title="Edit this category"></a>
+							&nbsp; <a class="fa-solid fa-trash fa-2x icon-dark link-delete"
+							th:href="@{'/categories/delete/' + ${id}}" th:userId="${id}"
+							title="Delete this caregory"></a>
+							</td>-->
+	            </td>
+	          </tr>
+	        </tbody>
+     	</table>
+	</div>
+	<div class="less-details">
+	<div th:each="cat : ${listCategories}" class="row m-1">
+	<div class ="col-4">
+	<img th:src="@{${cat.imagePath}}" style="width: 100px" class="img-fluid"/>
+	</div>
+	<div class="col-8">
+	<div>[[${cat.name}]]</div>
+	<div class="mt-2">
+	<div th:replace="fragments :: status(${cat.enabled}, 'category', '/categories/' + ${cat.id})" />
+	&nbsp;
+	 <div th:replace ="fragments :: category_actions"></div>
+	</div>
+	
+	</div>
+	<div>&nbsp;</div>
+	</div>
+	
+	</div>
+	
+	
+	<div class="text-center m-1" th:if="${totalItems > 0}">
+			<span>Showing categories # [[${startCount}]] to [[${endCount}]] of
+				[[${totalItems}]]</span>
+		</div>
+		<div class="text-center m-1" th:unless="${totalItems > 0}">
+			<span>No categories found</span>
+		</div>
+		<div th:if="${totalPages > 1}">
+			<nav>
+				<ul class="pagination justify-content-center flex-wrap">
+					<li
+						th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link"
+						th:href="@{'/categories/page/1?sortField=' +${name} + '&sortDir=' +${sortDir}+ ${keyword != null ? '&keyword='+ keyword : ''}}">First</a>
+					</li>
+					<li
+						th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link"
+						th:href="@{'/categories/page/' + ${currentPage - 1} + '?sortField=' +${name} + '&sortDir=' +${sortDir}+ ${keyword != null ? '&keyword='+ keyword : ''}}">Previous</a>
+					</li>
+
+					<li
+						th:class="${currentPage != i ? 'page-item ' : 'page-item active'}"
+						th:each="i :${#numbers.sequence(1, totalPages)}"><a
+						class="page-link"
+						th:href="@{'/categories/page/' + ${i} +'?sortField=' +${name} + '&sortDir=' +${sortDir}+ ${keyword != null ? '&keyword='+ keyword : ''}}">[[${i}]]</a>
+					</li>
+
+					<li
+						th:class="${currentPage < totalPages ?'page-item' : 'page-item disabled'}">
+						<a class="page-link"
+						th:href="@{'/categories/page/' + ${currentPage + 1} + '?sortField=' +${name} + '&sortDir=' +${sortDir}+ ${keyword != null ? '&keyword='+ keyword : ''}}">Next</a>
+					</li>
+					<li
+						th:class="${currentPage < totalPages ?'page-item' : 'page-item disabled'}">
+						<a class="page-link"
+						th:href="@{'/categories/page/' + ${totalPages} + '?sortField=' +${name} + '&sortDir=' +${sortDir}+ ${keyword != null ? '&keyword='+ keyword : ''}}">Last</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	
+	<!-- <div th:replace="fragments :: pagination('/categories', 'top-level categories')"></div> -->
+	<div th:replace="modal_fragments :: confirm_modal"/>
+	
+	<div th:replace="fragments :: footer"></div>
+
+</div>
+<script th:src= "@{/js/common_list.js}"></script>
+<script type="text/javascript">
+    moduleURL = "[[@{/categories}]]";
+    
+    $(document).ready(function(){
+    	$(".link-delete").on("click", function(e){
+    		e.preventDefault();
+    		showDeleteConfirmModal($(this), 'category');
+    	});
+    });
+    	
+
+</script>
+
+
+
+</body>
+</html>
